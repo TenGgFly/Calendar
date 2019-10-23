@@ -17,21 +17,21 @@
          #selectTime {
             display:inline-block;
             width: 100%;
-            height:50px;
-            line-height: 50px;
-			white-space: nowrap;
-			box-shadow: 0 1px 2px rgba(0,0,0,.1);
-			overflow-x: scroll;
-			overflow-y: hidden;
-			-webkit-backface-visibility: hidden;
-			-webkit-perspective: 1000;
-			-webkit-overflow-scrolling: touch;
-			text-align: justify;
-			padding: 0px 5px;
-			box-sizing: border-box;
+            height:60px;
+            line-height: 60px;
+	    white-space: nowrap;
+	    box-shadow: 0 1px 2px rgba(0,0,0,.1);
+	    overflow-x: scroll;
+	    overflow-y: hidden;
+	    -webkit-backface-visibility: hidden;
+	    -webkit-perspective: 1000;
+	    -webkit-overflow-scrolling: touch;
+	    text-align: justify;
+	    padding: 0px 5px;
+	    box-sizing: border-box;
         }
         #selectTime a{
-            font-size:24px;
+            font-size:26px;
             text-decoration: none;
             margin-right: 10px;
             padding:5px;
@@ -154,7 +154,7 @@
         var month = initTime.getMonth() + 1;
         var day = initTime.getDate();
         
-        $("#selectTime").append('<a onclick="goPre()">&lt&ltGO</a>');
+        $("#selectTime").append('<a onclick="goPre()">&lt&lt</a>');
         for (var i = 1; i <= getDaysInMonth(year, month) ; i++) {
             var newDate = new Date().setDate(i - 1);
             var weekDay = new Date(newDate).getDay();
@@ -168,7 +168,7 @@
         var marginLeft = $(".weekDaySelected").offset().left; //a标签（日期）距离窗口左边的距离
         $("#selectTime").scrollLeft(marginLeft - client_width / 2 + width / 2);
 
-        $("#selectTime").append('<a onclick="goNext()">GO&gt&gt</a>');
+        $("#selectTime").append('<a onclick="goNext()">&gt&gt</a>');
     }
 
     /*  @desc 计算，使初始化加载的日期在中间位置 */
