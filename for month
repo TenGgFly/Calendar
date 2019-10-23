@@ -306,7 +306,7 @@
         //$("#siteInfo").hide().show(500);//从左边滑进场，但table数据多时，后面的数据后一下子弹出来，比较突兀
 
         //淡出淡入，事先渲染好dom布局，但切换过于频繁时会出现抖动
-        $("#siteInfo").hide(function () {
+        $("#siteInfo").stop(true).hide(function () {
             $("#siteInfo").empty();
             getSite();
         }).fadeIn();
@@ -356,7 +356,7 @@
                 nextNode.removeClass("a_fontColor").addClass("weekDaySelected");
                 nextNode.removeAttr("onclick");
 
-                $("#siteInfo").hide(function () {
+                $("#siteInfo").stop(true).hide(function () {
                     $("#siteInfo").empty();
                     getSite();
                 }).fadeIn();
@@ -379,7 +379,7 @@
                 nextNode.removeClass("a_fontColor").addClass("weekDaySelected");
                 nextNode.removeAttr("onclick");
 
-                $("#siteInfo").hide(function () {
+                $("#siteInfo").stop(true).hide(function () {
                     $("#siteInfo").empty();
                     getSite();
                 }).fadeIn();
