@@ -272,7 +272,7 @@
     var startX = 0;
     var endX = 0;
     var moveX=0;
-    var distance = $(window).width() / 4;
+    var distance = $(window).width() / 6;
 
     $("#siteInfo").on("touchstart", function (e) {
         if (e.cancelable) {
