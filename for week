@@ -394,7 +394,7 @@
             $("#week" + week_day + "").removeClass("a_fontColor").addClass("a_select");
             $("#load" + week_day + "").show();
 
-            $("#siteInfo").hide(function () {
+            $("#siteInfo").stop(true).hide(function () {
                 $("#siteInfo").empty();
                 getSite();
             }).fadeIn();
@@ -412,7 +412,7 @@
             $("#selectTime .a_select").removeClass("a_select").addClass("a_fontColor");
             $("#week1").removeClass("a_fontColor").addClass("a_select");
 
-            $("#siteInfo").hide(function () {
+            $("#siteInfo").stop(true).hide(function () {
                 $("#siteInfo").empty();
                 getSite();
             }).fadeIn();
@@ -429,7 +429,7 @@
             $("#selectTime .a_select").removeClass("a_select").addClass("a_fontColor");
             $("#week1").removeClass("a_fontColor").addClass("a_select");
 
-            $("#siteInfo").hide(function () {
+            $("#siteInfo").stop(true).hide(function () {
                 $("#siteInfo").empty();
                 getSite();
             }).fadeIn();
