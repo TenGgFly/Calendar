@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <title>预约情况</title>
+    <link href="css/mui.min.css" rel="stylesheet" />
+    <script src="js/mui.min.js"></script>
+    <script src="js/jquery-1.11.1.min.js"></script>
+    <script src="js/config.js"></script>
+    <style>
+        /** { 
+            touch-action: pan-y; 
+        }*/
+         #selectTime {
+            display:inline-block;
+            width: 100%;
+            height:50px;
+            line-height: 50px;
+			white-space: nowrap;
+			box-shadow: 0 1px 2px rgba(0,0,0,.1);
+			overflow-x: scroll;
+			overflow-y: hidden;
+			-webkit-backface-visibility: hidden;
+			-webkit-perspective: 1000;
+			-webkit-overflow-scrolling: touch;
+			text-align: justify;
+			padding: 0px 5px;
+			box-sizing: border-box;
+        }
+        #selectTime a{
+            font-size:24px;
+            text-decoration: none;
+            margin-right: 10px;
+            padding:5px;
+        }
+        #selectTime a:active{
+            color:rgba(255,128,128,1);
+        }
+        #selectTime::-webkit-scrollbar{
+            display: none;
+		}
+        #weekDay {
+            width:40px;
+            height:40px;
+            border-radius:50%;
+            margin:12px 0 0 12px;
+            text-align:center;
+            line-height:40px;
+            background:rgba(255,128,128,1);
+            color:white;
+            box-shadow:3px 3px 5px black;
+        }
+        .weekDaySelected {
+            font-weight:bold;
+            color:rgba(255,128,128,1);
+        }
+        .a_fontColor {
+            
+            color:#999999;
+        }
+        table tr td {
+            padding:10px;
+        }
+        .siteName {
+            height:60px;
+            background:#C2C2C2;
+            border-radius:6px;
+            text-align:center;
+        }
+        .time {
+            width:40%;
+            height:40px;
+            background:rgba(255,128,172,1);
+            border-radius:6px;
+            text-align:center;
+            color:white;
+        }
+        .reason {
+            height:40px;
+            background:rgba(113,184,255,1);
+            border-radius:6px;
+            text-align:right;
+            color:white;
+        }
+        .btn {
+            width:90%;
+            height:50px;
+            background:rgba(38,153,251,1);
+            color:white;
+            border-radius:6px;
+            display:block;
+            margin:50px auto;
+            font-size:18px;  
+        }
+    </style>
+</head>
+<body>
+    <header class="mui-bar mui-bar-nav">
+        <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+	    <h1 class="mui-title" id="site_name">预约情况</h1>
+	</header>
+    
+    <div class="mui-content">
+        <div id="selectTime"></div>
+        
+        <div id="weekDay"></div>
+
+        <div id="siteInfo" style="width:100%"></div>
+
+        <button class="btn">预约</button>
+    </div>
+</body>
+</html>
+<script>
+
+    /**************************************************截取url参数**************************************************/
+    //
+    var siteID = getUrlData().id;//场地类型
+    var siteName = decodeURI(getUrlData().name);//场地名称
+    function getUrlData() {
+        var url = window.location.search;  
+        url = url.substring(1); 
+        var dataObj = {};
+        if (url.indexOf('&') > -1) {
+            url = url.split('&');
+            for (var i = 0; i < url.length; i++) {
+                var arr = url[i].split('=');
+                dataObj[arr[0]] = arr[1];
+            }
+        }
+        else {
+            url = url.split('=');
+            dataObj[url[0]] = url[1];
+        }
+        return dataObj;
+    }
+    //
+    /**************************************************截取url参数**************************************************/
+
+    /**************************************************加载日期、数据**************************************************/
+    //
+    var initTime = new Date();
+    var client_width = window.innerWidth || document.documentElement.clientinnerWidth || document.body.clientinnerWidth;//可视界面宽度
+
+    get_month_day();//加载日期
+    getSite();//加载对应日期数据
+   
+    /* @desc 加载日期 */
+    function get_month_day() {
+        var year = initTime.getFullYear();
+        var month = initTime.getMonth() + 1;
+        var day = initTime.getDate();
+        
+        $("#selectTime").append('<a onclick="goPre()">&lt&ltGO</a>');
+        for (var i = 1; i <= getDaysInMonth(year, month) ; i++) {
+            var newDate = new Date().setDate(i - 1);
+            var weekDay = new Date(newDate).getDay();
+            if (i == day)
+                var li = '<a class="weekDaySelected">' + month + '-' + i + '</a>';
+            else
+                var li = '<a class="a_fontColor" onclick="a_click(this)">' + month + '-' + i + '</a>';
+            $("#selectTime").append(li);
+        }
+        var width = $(".weekDaySelected").width(); //a标签（日期）所占宽度
+        var marginLeft = $(".weekDaySelected").offset().left; //a标签（日期）距离窗口左边的距离
+        $("#selectTime").scrollLeft(marginLeft - client_width / 2 + width / 2);
+
+        $("#selectTime").append('<a onclick="goNext()">GO&gt&gt</a>');
+    }
+
+    /*  @desc 计算，使初始化加载的日期在中间位置 */
+    function center() {
+        var scrollLeft = $("#selectTime").scrollLeft();
+        var marginLeft = $(".weekDaySelected").offset().left;
+        var center_distance = scrollLeft + marginLeft - client_width / 2 + $(".weekDaySelected").width() / 2;
+        $("#selectTime").scrollLeft(center_distance);
+    }
+
+    /*  @desc 加载当天预约情况 */
+    function getSite() {
+        
+        var year = initTime.getFullYear();
+        var month = initTime.getMonth() + 1 < 10 ? "0" + (initTime.getMonth() + 1) : initTime.getMonth() + 1;
+        var day = initTime.getDate() < 10 ? "0" + initTime.getDate() : initTime.getDate();
+        var STime = year + "-" + month + "-" + day + " 00:00:00";
+        var ETime = year + "-" + month + "-" + day + " 23:59:59";
+        var week_day = initTime.getDay();
+
+        /******************************************
+            console.log("当前时间:" + initTime);
+            console.log("当前年份:" + year);
+            console.log("当前月份:" + month);
+            console.log("当前天数:" + day);
+            console.log("当前周几:" + week_day);
+            console.log("开始时间:" + STime);
+            console.log("结束时间:" + ETime);
+        ******************************************/
+
+        //当前选中日期为星期几
+        switch (week_day) {
+            case 0: week_day = "日"; break;
+            case 1: week_day = "一"; break;
+            case 2: week_day = "二"; break;
+            case 3: week_day = "三"; break;
+            case 4: week_day = "四"; break;
+            case 5: week_day = "五"; break;
+            case 6: week_day = "六"; break;
+        }
+        $("#weekDay").html(week_day);
+
+        //当前选中日期数据
+        $.ajax({
+            url: config.url() + "/WorkCenter/ajax/getdata.ashx?type=siteApplication&r=" + Math.random(),
+            dataType: 'json',
+            type: 'post',
+            data: { siteID: siteID, STime: STime, ETime: ETime },//场地id，开始时间，结束时间
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function (res) {
+                var table = '<table width="100%" style="border-collapse:separate; border-spacing:15px;" id="siteList">' +
+                                    '<tr><td colspan="2" class="siteName"></td></tr>' +
+                                '</table>';
+                $("#siteInfo").append(table);
+                if (res.length > 0) {
+                    for (var i = 0; i < res.length; i++) {
+                        var sHou = new Date(res[i].StartTime).getHours() < 10 ? "0" + new Date(res[i].StartTime).getHours() : new Date(res[i].StartTime).getHours();
+                        var sMin = new Date(res[i].StartTime).getMinutes() < 10 ? "0" + new Date(res[i].StartTime).getMinutes() : new Date(res[i].StartTime).getMinutes();
+                        var startTime = sHou + ":" + sMin;
+                        var eHou = new Date(res[i].EndTime).getHours() < 10 ? "0" + new Date(res[i].EndTime).getHours() : new Date(res[i].EndTime).getHours();
+                        var eMin = new Date(res[i].EndTime).getMinutes() < 10 ? "0" + new Date(res[i].EndTime).getMinutes() : new Date(res[i].EndTime).getMinutes();
+                        var endTime = eHou + ":" + eMin;
+                        var row = '<tr><td class="time">' + startTime + '-' + endTime + '</td><td class="reason">' + res[i].SiteScheduleName + '</td></tr>';
+                        $("#siteList").append(row);
+                    }
+                    $(".siteName").html(siteName);
+                }
+                else {
+                    $(".siteName").html("暂无预约");
+                } 
+            }
+        })
+    }
+    //
+    /**************************************************加载日期、数据**************************************************/
+
+    /**************************************************调用方法**************************************************/
+    //
+    /** 
+    *@param {Number} year 当前日期年
+    *@param {Number} month 当前日期月
+    *@desc 计算本月天数 
+    */
+    function getDaysInMonth(year, month) {
+        //本来标准时间的month应该为当前month-1，这里就使用当前month作为标准时间的month
+        month = parseInt(month);
+        //转化为标准时间后为下一个月的数据，设置day为0表示上个月最后一天，这样就切换到了所求月份的最后一天
+        var temp = new Date(year, month, 0);
+        return temp.getDate();
+    }
+
+    /* @desc 加载上个月数据 */
+    function goPre() {
+        initTime = new Date(initTime.setDate(1));
+        initTime = new Date(initTime.setMonth(initTime.getMonth() - 1));
+        $("#selectTime").empty();
+        $("#siteInfo").hide(function () {
+            $("#siteInfo").empty();
+            getSite();
+        }).fadeIn();
+        
+        get_month_day();//加载日期
+        getSite();//加载对应日期数据
+    }
+
+    /* @desc 加载下个月数据 */
+    function goNext() {
+        initTime = new Date(initTime.setDate(1));
+        initTime = new Date(initTime.setMonth(initTime.getMonth() + 1));
+        $("#selectTime").empty();
+        $("#siteInfo").hide(function () {           
+            $("#siteInfo").empty();
+            getSite();
+        }).fadeIn();
+        get_month_day();//加载日期
+        getSite();//加载对应日期数据 
+    }
+
+    /** 
+    *@param {Object} obj 点击的a标签
+    *@desc 本月切换日期,选中后不再触发点击事件
+    */
+    function a_click(obj) {
+        var selectTime = $(obj).text();
+        var Time = initTime.getFullYear() + "-" + selectTime;
+        initTime = new Date(Time);
+        $("#selectTime .weekDaySelected").attr("onclick", "a_click(this);");
+        $("#selectTime .weekDaySelected").removeClass("weekDaySelected").addClass("a_fontColor");
+        $(obj).removeClass("a_fontColor").addClass("weekDaySelected");
+
+        //加载数据的时候，页面会闪动，用动画效果来平滑过渡
+        //$("#siteInfo").slideUp().slideDown();//上卷下滑，过渡最为平滑,但数据数据会在上卷前切换,动画还没开始结果就已经出来了
+        //$("#siteInfo").hide().show(500);//从左边滑进场，但table数据多时，后面的数据后一下子弹出来，比较突兀
+
+        //淡出淡入，事先渲染好dom布局，但切换过于频繁时会出现抖动
+        $("#siteInfo").hide(function () {
+            $("#siteInfo").empty();
+            getSite();
+        }).fadeIn();
+
+        //为避免事件中途因意外停止，在点击事件完成后再移除现在选中日期的点击事件
+        $(obj).removeAttr("onclick");
+        center();
+    }
+
+    var startX = 0;
+    var endX = 0;
+    var distance = $(window).width() / 4;
+    var newSelectTime = null;
+
+    //左右滑动翻页
+    $("#siteInfo").on("touchstart", function (e) {
+        // 行为可以取消
+        if (e.cancelable) {
+            // 触发此事件时，禁用其它事件
+            if (!e.defaultPrevented) {
+                e.preventDefault();
+            }
+        }
+        startX = e.originalEvent.changedTouches[0].pageX;
+    })
+    $("#siteInfo").on("touchend", function (e) {
+        if (e.cancelable) {
+            if (!e.defaultPrevented) {
+                e.preventDefault();
+            }
+        }
+        endX = e.originalEvent.changedTouches[0].pageX;
+        if (startX - endX > distance) {
+            var year = initTime.getFullYear();
+            var month = initTime.getMonth()+1;
+            if (initTime.getDate() == getDaysInMonth(year, month)) {
+                goNext();
+            }
+            else {
+                //加载后一天
+                initTime = new Date(initTime.setDate(initTime.getDate() + 1));
+                var nextNode = $("#selectTime .weekDaySelected").next();
+
+                $("#selectTime .weekDaySelected").attr("onclick", "a_click(this);");
+                $("#selectTime .weekDaySelected").removeClass("weekDaySelected").addClass("a_fontColor");
+                
+
+                nextNode.removeClass("a_fontColor").addClass("weekDaySelected");
+                nextNode.removeAttr("onclick");
+
+                $("#siteInfo").hide(function () {
+                    $("#siteInfo").empty();
+                    getSite();
+                }).fadeIn();
+            }            
+        }
+        if (endX - startX > distance) {
+            var year = initTime.getFullYear();
+            var month = initTime.getMonth() + 1;
+            if (initTime.getDate() == 1) {
+                goPre();
+            }
+            else {
+                //加载前一天
+                initTime = new Date(initTime.setDate(initTime.getDate() - 1));
+                var nextNode = $("#selectTime .weekDaySelected").prev();
+
+                $("#selectTime .weekDaySelected").attr("onclick", "a_click(this);");
+                $("#selectTime .weekDaySelected").removeClass("weekDaySelected").addClass("a_fontColor");
+
+                nextNode.removeClass("a_fontColor").addClass("weekDaySelected");
+                nextNode.removeAttr("onclick");
+
+                $("#siteInfo").hide(function () {
+                    $("#siteInfo").empty();
+                    getSite();
+                }).fadeIn();
+            } 
+        }
+        center();
+    })
+    //
+    /**************************************************调用方法**************************************************/
+</script>
