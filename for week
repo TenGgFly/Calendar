@@ -319,7 +319,7 @@
             $("#week" + week_day + "").removeClass("a_fontColor").addClass("a_select");
             $("#load" + week_day + "").show();
             
-            $("#siteInfo").hide(function () {
+            $("#siteInfo").stop(true).hide(function () {
                 $("#siteInfo").empty();
                 getSite();
             }).fadeIn();
@@ -343,7 +343,7 @@
             $("#week" + week_day + "").removeClass("a_fontColor").addClass("a_select");
             $("#load" + week_day + "").show();
 
-            $("#siteInfo").hide(function () {
+            $("#siteInfo").stop(true).hide(function () {
                 $("#siteInfo").empty();
                 getSite();
             }).fadeIn();
