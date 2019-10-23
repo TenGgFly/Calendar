@@ -267,7 +267,7 @@
         initTime = new Date(initTime.setDate(1));
         initTime = new Date(initTime.setMonth(initTime.getMonth() - 1));
         $("#selectTime").empty();
-        $("#siteInfo").hide(function () {
+        $("#siteInfo").stop(true).hide(function () {
             $("#siteInfo").empty();
             getSite();
         }).fadeIn();
@@ -281,7 +281,7 @@
         initTime = new Date(initTime.setDate(1));
         initTime = new Date(initTime.setMonth(initTime.getMonth() + 1));
         $("#selectTime").empty();
-        $("#siteInfo").hide(function () {           
+        $("#siteInfo").stop(true).hide(function () {           
             $("#siteInfo").empty();
             getSite();
         }).fadeIn();
